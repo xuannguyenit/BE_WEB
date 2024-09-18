@@ -11,10 +11,10 @@ spring:
     url: "jdbc:mysql://localhost:3306/identity_service"
     driverClassName: "com.mysql.cj.jdbc.Driver"
     username: root
-    password:
+    password: nguyenthanhxuan
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
   kafka:
     bootstrap-servers: localhost:9094

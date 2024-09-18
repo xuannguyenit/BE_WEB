@@ -19,8 +19,8 @@ import java.util.List;
         url = "${app.services.profile}",
         configuration = {AuthenticationRequestInterceptor.class})
 public interface ProfileClient {
-    @PostMapping(value = "/profiles/intenal/users", produces = MediaType.APPLICATION_JSON_VALUE)
-    ApiResponse<ProfileResponse> createProfile (@RequestBody ProfileCreationRequest request);
+    @PostMapping(value = "/internal/users", produces = MediaType.APPLICATION_JSON_VALUE)
+    ApiResponse<UserProfileResponse> createProfile(@RequestBody ProfileCreationRequest request);
 
     @GetMapping(value ="/profiles/users/", produces = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<List<ProfileResponse>>getAllProfiles();

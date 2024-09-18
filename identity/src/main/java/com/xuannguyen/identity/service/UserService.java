@@ -58,38 +58,70 @@ public class UserService {
 
         try {
             user = userRepository.save(user);
-        } catch (DataIntegrityViolationException exception) {
+        } catch (DataIntegrityViolationException exception){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-//        var profileRequest = profileMapper.toProfileCreationRequest(request);
-//        profileRequest.setUserId(user.getId());
-//
-//        var profile = profileClient.createProfile(profileRequest);
-        // tạo profile
-        ProfileCreationRequest profileCreationRequest = ProfileCreationRequest.builder()
-                .userId(user.getId())
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
-                .city(request.getCity())
-                .dob(request.getDob())
-                .build();
-        ApiResponse<ProfileResponse> profileResponse = profileClient.createProfile(profileCreationRequest);
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+        profileRequest.setUserId(user.getId());
 
-
-        var userCreationReponse = userMapper.toUserResponse(user);
-
+        var profile = profileClient.createProfile(profileRequest);
 
         NotificationEvent notificationEvent = NotificationEvent.builder()
                 .channel("EMAIL")
                 .recipient(request.getEmail())
-                .subject("Welcome to My Shop")
+                .subject("Welcome to xuannguyen")
                 .body("Hello, " + request.getUsername())
                 .build();
-        kafkaTemplate.send("notification-delivery",notificationEvent);
 
-        return userMapper.toUserResponse(user);
+        // Publish message to kafka
+        kafkaTemplate.send("notification-delivery", notificationEvent);
+
+        var userCreationReponse = userMapper.toUserResponse(user);
+
+        userCreationReponse.setId(profile.getResult().getId());
+
+        return userCreationReponse;
     }
+
+//public UserResponse createUser(UserCreationRequest request) {
+//    User user = userMapper.toUser(request);
+//    user.setPassword(passwordEncoder.encode(request.getPassword()));
+//
+//    HashSet<Role> roles = new HashSet<>();
+//    roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+//
+//    user.setRoles(roles);
+//
+//    try {
+//        user = userRepository.save(user);
+//    } catch (DataIntegrityViolationException exception){
+//        throw new AppException(ErrorCode.USER_EXISTED);
+//    }
+//
+////        ServletRequestAttributes servletRequestAttributes =
+////                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+////        var authHeader= servletRequestAttributes.getRequest().getHeaders("Authorization");
+//
+//    // tạo profile
+//    ProfileCreationRequest profileCreationRequest = ProfileCreationRequest.builder()
+//            .userId(user.getId())
+//            .firstName(request.getFirstName())
+//            .lastName(request.getLastName())
+//            .city(request.getCity())
+//            .dob(request.getDob())
+//            .build();
+//    ApiResponse<ProfileResponse> profileResponse = profileClient.createProfile(profileCreationRequest);
+////    NotificationEvent notificationEvent = NotificationEvent.builder()
+////            .channel("EMAIL")
+////            .recipient(request.getEmail())
+////            .subject("Welcome to My Shop")
+////            .body("Hello, " + request.getUsername())
+////            .build();
+////    kafkaTemplate.send("notification-delivery",notificationEvent);
+//
+//    return userMapper.toUserResponse(user);
+//}
 
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();

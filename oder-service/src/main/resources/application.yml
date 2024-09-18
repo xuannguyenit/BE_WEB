@@ -3,12 +3,12 @@ spring:
   application:
     name: oder-service
   datasource:
-    url: jdbc:mysql://localhost:3306/order
+    url: jdbc:mysql://localhost:3306/orders
     username: root
-    password:
+    password: nguyenthanhxuan
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
