@@ -1,0 +1,28 @@
+
+spring:
+  application:
+    name: oder-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/order
+    username: root
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+        format_sql: true
+
+server:
+  port: 8084
+  servlet:
+    context-path: /order
+app:
+  services:
+    product-service: http://localhost:8083/product
+  vnpay:
+    HashSecret: 1AYE08U3VK3G6DI09WJ0BPR2M9SQB0ZH
+    TmnCode: J3JO6856
+
+

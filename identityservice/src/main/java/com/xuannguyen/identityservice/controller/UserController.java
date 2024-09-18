@@ -4,6 +4,8 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.xuannguyen.identityservice.dto.request.ApiResponse;
@@ -25,19 +27,40 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
     UserService userService;
 
-    @PostMapping
+    @PostMapping("/registration")
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
                 .build();
     }
 
-    @GetMapping
-    ApiResponse<List<UserResponse>> getUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getUsers())
+//    @GetMapping("/list")
+//    ApiResponse<List<UserResponse>> getUsers() {
+//        return ApiResponse.<List<UserResponse>>builder()
+//                .result(userService.getUsers())
+//                .build();
+//    }
+@GetMapping("/list")
+public ResponseEntity<ApiResponse<List<UserResponse>>> getUsers() {
+    try {
+        // Gọi phương thức getUsers() từ UserService
+        ApiResponse<List<UserResponse>> userResponse = userService.getUsers();
+
+        // Trả về phản hồi thành công với mã trạng thái HTTP 200
+        return ResponseEntity.ok(userResponse);
+    } catch (Exception e) {
+        // Ghi log lỗi
+        log.error("Error fetching users", e);
+
+        // Tạo phản hồi lỗi với mã trạng thái HTTP 500
+        ApiResponse<List<UserResponse>> errorResponse = ApiResponse.<List<UserResponse>>builder()
+                .message(e.getMessage())
                 .build();
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+}
+
 
     @GetMapping("/{userId}")
     ApiResponse<UserResponse> getUser(@PathVariable("userId") String userId) {
