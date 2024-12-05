@@ -1,27 +1,24 @@
 package com.xuannguyen.product_service.service.impl;
 
 import com.xuannguyen.product_service.dto.request.CreationProductRequest;
+import com.xuannguyen.product_service.dto.request.ProductQuantityRequest;
 import com.xuannguyen.product_service.dto.response.PageResponse;
 
-import com.xuannguyen.product_service.entity.Brand;
-import com.xuannguyen.product_service.entity.Category;
-import com.xuannguyen.product_service.entity.Image;
-import com.xuannguyen.product_service.entity.Product;
+import com.xuannguyen.product_service.entity.*;
 import com.xuannguyen.product_service.exception.AppException;
 import com.xuannguyen.product_service.exception.ErrorCode;
 import com.xuannguyen.product_service.mapper.ProductMapper;
-import com.xuannguyen.product_service.repository.BranRepository;
-import com.xuannguyen.product_service.repository.CategoryRepository;
-import com.xuannguyen.product_service.repository.ImageRepository;
-import com.xuannguyen.product_service.repository.ProductRepository;
+import com.xuannguyen.product_service.repository.*;
 
 import com.xuannguyen.product_service.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +37,8 @@ public class ProductServiceImpl implements ProductService {
     private ImageRepository imageRepository;
     @Autowired
     private BranRepository  branRepository;
+    @Autowired
+    private DiscountCodeRepository discountCodeRepository;
 
     private ProductMapper productMapper;
 
@@ -65,13 +64,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product createProduct(CreationProductRequest request) {
-        if (productRepository.existsByName(request.getName())){
-            throw new AppException(ErrorCode.NAME_EXITSTED);
-        }
 
         Product product = new Product();
         product.setName(request.getName());
         product.setDescription(request.getDescription());
+        product.setShortDescription(request.getShortDescription());
         product.setPrice(request.getPrice());
         product.setQuantity(request.getQuantity());
         Category category = categoryRepository.findById(request.getCategoryId()).orElseThrow(()-> new AppException(ErrorCode.CATEGORY_NOT_EXITS));
@@ -85,6 +82,13 @@ public class ProductServiceImpl implements ProductService {
             images.add(image);
         }
         product.setImages(images);
+
+        if (request.getDiscountCodeId() == null) {
+            product.setDiscountCode(null);
+        }else {
+            DiscountCode discountCode = discountCodeRepository.findById(request.getDiscountCodeId()).orElseThrow(()->new AppException(ErrorCode.INVALID_DISCOUNTCODE));
+            product.setDiscountCode(discountCode);
+        }
         productRepository.save(product);
         return product;
     }
@@ -109,10 +113,17 @@ public class ProductServiceImpl implements ProductService {
             images.add(image);
         }
         product.setImages(images);
-        productRepository.save(product);
 
+        if (request.getDiscountCodeId() == null) {
+            product.setDiscountCode(null);
+        }else {
+            DiscountCode discountCode = discountCodeRepository.findById(request.getDiscountCodeId()).orElseThrow(()->new AppException(ErrorCode.INVALID_DISCOUNTCODE));
+            product.setDiscountCode(discountCode);
+        }
+        productRepository.save(product);
         return product;
     }
+
 
     @Override
     public void deleteProduct(String id) {
@@ -135,6 +146,73 @@ public class ProductServiceImpl implements ProductService {
                 .data(pageResponse.getContent())
                 .build();
     }
+    // phân trang cho tất cả các sản phẩm dc giảm giá
+    @Override
+    public PageResponse<Product> getAllProductSale (int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
+        var pageResponse = productRepository.findDiscountedProducts(pageable);
+        return PageResponse.<Product>builder()
+                .currentPage(page)
+                .pageSize(pageResponse.getSize())
+                .totalPages(pageResponse.getTotalPages())
+                .totalElements(pageResponse.getTotalElements())
+                .data(pageResponse.getContent())
+                .build();
+    }
+
+    @Override
+    public Product updateProductAfterOrder(ProductQuantityRequest request) {
+        Product product = productRepository.findById(request.getProductId()).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXITS));
+        product.setQuantity(product.getQuantity() - request.getQuantity());
+        productRepository.save(product);
+        return product;
+    }
+
+    @Override
+    public Product updateProductAfterImport(ProductQuantityRequest request) {
+        Product product = productRepository.findById(request.getProductId()).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXITS));
+        product.setQuantity(product.getQuantity() + request.getQuantity());
+        productRepository.save(product);
+        return product;
+    }
+
+    @Override
+    public List<Product> getProductByCategory(String categoryId) {
+        List<Product> products = productRepository.findByCategoryId(categoryId);
+        return products;
+    }
+
+    // phân trang cho sản phẩm có mã giảm giá theo id mã giảm giá
+    @Override
+    public PageResponse<Product> getDiscountedProductsPagination(String discountCodeId,int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
+        Page<Product> pageResponse = productRepository.findDiscountedProducts(discountCodeId,pageable);
+
+        return PageResponse.<Product>builder()
+                .currentPage(page)
+                .pageSize(pageResponse.getSize())
+                .totalPages(pageResponse.getTotalPages())
+                .totalElements(pageResponse.getTotalElements())
+                .data(pageResponse.getContent())
+                .build();
+    }
+
+
+    @Override
+    public PageResponse<Product> getProductsByCategoryPagination(String categoryId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
+        Page<Product> pageResponse = productRepository.findByCategoryId(categoryId, pageable);
+
+        return PageResponse.<Product>builder()
+                .currentPage(page)
+                .pageSize(pageResponse.getSize())
+                .totalPages(pageResponse.getTotalPages())
+                .totalElements(pageResponse.getTotalElements())
+                .data(pageResponse.getContent())
+                .build();
+    }
+
+
     // update lại số lượng sản phẩm trong db khi người dùng mua hàng
     @Override
     public Product updateProductQuantity(String id, Integer quantity) {
@@ -142,6 +220,21 @@ public class ProductServiceImpl implements ProductService {
         product.setQuantity(quantity);
         return product;
     }
+
+    @Override
+    public Product addDiscountForProduct(String id, String discountId) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXITS));
+        DiscountCode discountCode = discountCodeRepository.findById(discountId)
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_DISCOUNTCODE_NOTEXIT));
+
+        // Lấy các mã giảm giá hiện có
+        product.setDiscountCode(discountCode);
+
+        return productRepository.save(product);
+    }
+
+
 
     @Override
     public List<Product> getListNewst(int number) {

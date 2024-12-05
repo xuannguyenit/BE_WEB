@@ -1,21 +1,21 @@
 package com.xuannguyen.oder.dto.respone;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.xuannguyen.oder.entity.Cart;
+import lombok.*;
 
+@Getter
+@Setter
 @AllArgsConstructor
-@Data
 @NoArgsConstructor
 @Builder
-
 public class CartItemResponse {
-
+    private String id;
+    private String cartId;
     private String productId;
     private String productName;
-    private int quantity;
-    private long price;
-//    private double coupon;
+    private long productPrice;
+    private int productQuantity;
+    private long discountPercentage;
     private long totalPrice;
+    private String userId;
 }

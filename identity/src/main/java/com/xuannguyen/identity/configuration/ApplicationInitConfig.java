@@ -2,6 +2,9 @@ package com.xuannguyen.identity.configuration;
 
 import java.util.HashSet;
 
+import com.xuannguyen.identity.constant.PredefinePermisstion;
+import com.xuannguyen.identity.entity.Permission;
+import com.xuannguyen.identity.repository.PermissionRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -34,25 +37,46 @@ public class ApplicationInitConfig {
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
 
+
     @Bean
     @ConditionalOnProperty(
             prefix = "spring",
             value = "datasource.driverClassName",
             havingValue = "com.mysql.cj.jdbc.Driver")
-    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
+    ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository, PermissionRepository permissionRepository) {
         log.info("Initializing application.....");
         return args -> {
             if (userRepository.findByUsername(ADMIN_USER_NAME).isEmpty()) {
-                roleRepository.save(Role.builder()
+                Permission permissionUser = permissionRepository.save(
+                        Permission.builder()
+                                .name(PredefinePermisstion.USER_PERMISSTION)
+                                .description("User permission")
+                                .build()
+                );
+
+                Permission permissionAdmin = permissionRepository.save(
+                        Permission.builder()
+                                .name(PredefinePermisstion.ADMIN_PERMISSTION)
+                                .description("Admin full permission")
+                                .build()
+                );
+
+                Role userRole = roleRepository.save(Role.builder()
                         .name(PredefinedRole.USER_ROLE)
                         .description("User role")
                         .build());
+                var userPermisstion = new HashSet<Permission>();
+                userPermisstion.add(permissionUser);
+                userRole.setPermissions(userPermisstion);
 
                 Role adminRole = roleRepository.save(Role.builder()
                         .name(PredefinedRole.ADMIN_ROLE)
                         .description("Admin role")
                         .build());
 
+                var permissionsAdmin = new HashSet<Permission>();
+                permissionsAdmin.add(permissionAdmin);
+                adminRole.setPermissions(permissionsAdmin);
                 var roles = new HashSet<Role>();
                 roles.add(adminRole);
 

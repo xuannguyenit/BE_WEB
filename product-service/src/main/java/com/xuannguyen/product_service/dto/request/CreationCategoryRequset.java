@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,5 +17,6 @@ public class CreationCategoryRequset {
     @NotEmpty(message = "Tên danh mục rỗng")
     @Size(min=5,max=50,message="Độ dài danh mục từ 5-50 ký tự")
     private String name;
+    private Set<String> imageIds;
 }
 

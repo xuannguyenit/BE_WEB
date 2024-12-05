@@ -1,5 +1,6 @@
 package com.xuannguyen.product_service.controller;
 import com.xuannguyen.product_service.dto.request.CreationProductRequest;
+import com.xuannguyen.product_service.dto.request.ProductQuantityRequest;
 import com.xuannguyen.product_service.dto.response.ApiResponse;
 import com.xuannguyen.product_service.dto.response.PageResponse;
 import com.xuannguyen.product_service.dto.response.ProductResponse;
@@ -25,7 +26,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/prod")
-@CrossOrigin(origins = "*",maxAge = 3600)
+//@CrossOrigin(origins = "*",maxAge = 3600)
 public class ProductController {
 
     @Autowired
@@ -70,17 +71,17 @@ public class ProductController {
         return apiResponse;
     }
 
-    @GetMapping("/category/{id}")
-    @Operation(summary="Lấy ra danh sách sản phẩm bằng id của danh mục")
-    public ApiResponse<List<Product>> getListProductByCategory(@PathVariable String id){
-        List<Product> list =  productService.getListProductByCategory(id);
-        ApiResponse <List<Product>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(list);
-        return apiResponse;
-    }
+//    @GetMapping("/category/{id}")
+//    @Operation(summary="Lấy ra danh sách sản phẩm bằng id của danh mục")
+//    public ApiResponse<List<Product>> getListProductByCategory(@PathVariable String id){
+//        List<Product> list =  productService.getListProductByCategory(id);
+//        ApiResponse <List<Product>> apiResponse = new ApiResponse<>();
+//        apiResponse.setResult(list);
+//        return apiResponse;
+//    }
 
     @GetMapping("/range")
-    @Operation(summary="Lấy ra danh sách sản phẩm ở các mức giá từ min đến max")
+
     public ApiResponse<List<Product>> getListProductByPriceRange(@RequestParam("id") String id,@RequestParam("min") int min, @RequestParam("max") int max){
         List<Product> list = productService.getListByPriceRange(id, min, max);
         ApiResponse<List<Product>> apiResponse = new ApiResponse<>();
@@ -90,7 +91,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary="Lấy sản phẩm bằng id")
+
     public ApiResponse<Product> getProduct(@PathVariable String id){
         Product product = productService.getProductById(id);
         ApiResponse<Product> apiResponse = new ApiResponse<>();
@@ -99,7 +100,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    @Operation(summary="Tìm kiếm sản phẩm bằng keyword")
+
     public ApiResponse<List<Product>> searchProduct(@RequestParam("keyword") String keyword){
         List<Product> list = productService.searchProduct(keyword);
         ApiResponse<List<Product>> apiResponse = new ApiResponse<>();
@@ -107,7 +108,7 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    @Operation(summary="Tạo mới sản phẩm")
+
     public ApiResponse<Product> createProduct(@RequestBody CreationProductRequest request){
         Product product = productService.createProduct(request);
         ApiResponse<Product> apiResponse = new ApiResponse<>();
@@ -116,7 +117,7 @@ public class ProductController {
     }
 
     @PutMapping("/update/{id}")
-    @Operation(summary="Tìm sản phẩm bằng id và cập nhật sản phẩm đó")
+
     public ApiResponse<Product> updateProduct(@PathVariable String id,@RequestBody CreationProductRequest request){
         Product product = productService.updateProduct(id, request);
         ApiResponse apiResponse = new ApiResponse<Product>();
@@ -127,7 +128,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @Operation(summary="Xóa sản phẩm bằng id")
+
     public ApiResponse<Void> deleteProduct(@PathVariable String id){
         productService.deleteProduct(id);
         ApiResponse <Void> apiResponse = new ApiResponse<>();
@@ -136,14 +137,30 @@ public class ProductController {
     }
     // phân trang
     @GetMapping("/getallproduct")
-    @Operation(summary = "Lấy tất cả sản phẩm với phân trang")
+
     public ApiResponse<PageResponse<Product>> getAllProduct(
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
             @RequestParam(value = "size", required = false, defaultValue = "10") int size
     ) {
-        // Spring phân trang bắt đầu từ 0, vì vậy bạn cần giảm giá trị của page đi 1
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Page and size must be greater than 0.");
+        }
         PageResponse<Product> pageResponse = productService.getAllProductPagination(page - 1, size);
 
+        return ApiResponse.<PageResponse<Product>>builder()
+                .result(pageResponse)
+                .build();
+    }
+    //     hiển thị sản phẩm theo category và phân trang
+    @GetMapping("/category/{categoryId}")
+    public ApiResponse<PageResponse<Product>> getProductsByCategory(
+            @PathVariable String categoryId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size ) {
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Page and size must be greater than 0.");
+        }
+        PageResponse<Product> pageResponse= productService.getProductsByCategoryPagination(categoryId, page -1, size);
         return ApiResponse.<PageResponse<Product>>builder()
                 .result(pageResponse)
                 .build();
@@ -158,6 +175,61 @@ public class ProductController {
         // Trả về phản hồi API
         return ApiResponse.<Product>builder()
                 .result(updatedProduct)
+                .build();
+    }
+    //
+    @GetMapping ("/productsale/{id}")
+    public ApiResponse<PageResponse<Product>> getAllProductSale(
+            @PathVariable String id,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Page and size must be greater than 0.");
+        }
+        PageResponse<Product> pageResponse = productService.getDiscountedProductsPagination( id,page - 1, size);
+
+        return ApiResponse.<PageResponse<Product>>builder()
+                .result(pageResponse)
+                .build();
+    }
+    // api get all product sale
+    @GetMapping ("/productsale/get")
+    public ApiResponse<PageResponse<Product>> getAllProductSale(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ){
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Page and size must be greater than 0.");
+        }
+        PageResponse<Product> pageResponse = productService.getAllProductSale(page - 1, size);
+
+        return ApiResponse.<PageResponse<Product>>builder()
+                .result(pageResponse)
+                .build();
+    }
+    // cập nhật mã giảm giá cho sản phẩm
+    @PutMapping("/adddistcount/put/{id}/{discountId}")
+    public ApiResponse<Product> addDistcountCodeProduct(@PathVariable String id, @PathVariable String discountId) {
+        Product p =productService.addDiscountForProduct(id, discountId);
+        return ApiResponse.<Product>builder()
+                .result(p)
+                .build();
+    }
+    // tính lại số lượng sản phẩm sau khi bán
+    @PutMapping ("/update/quantity/afterorder")
+    public ApiResponse <Product> updateProductAfterOrder (@RequestBody ProductQuantityRequest request){// đối tượng request {"productId": "id", "quantity": sô lượng}
+        return ApiResponse.<Product>builder()
+                .message("Cập nhật thành công")
+                .result(productService.updateProductAfterOrder(request))
+                .build();
+    }
+
+    // lấy ra danh sách sản phẩm thuộc category
+    @GetMapping ("/get/product/category/{id}")
+    public ApiResponse<List<Product>> getProductByCategory(@PathVariable String id){
+        return ApiResponse.<List<Product>>builder()
+                .result(productService.getProductByCategory(id))
                 .build();
     }
 }

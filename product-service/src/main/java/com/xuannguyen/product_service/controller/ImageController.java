@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
 @RequestMapping("/image")
-@CrossOrigin(origins = "*",maxAge = 3600)
+//@CrossOrigin(origins = "*",maxAge = 3600)
 public class ImageController {
     private static String UPLOAD_DIR  = System.getProperty("user.dir") + "/upload/photo/";
 //    private static String UPLOAD_DIR  = System.getProperty("user.dir") + "/src/main/resources/static/photos/";
@@ -48,7 +48,7 @@ public class ImageController {
 
 
     @PostMapping("/upload-file")
-    @Operation(summary="Upload file lên database")
+
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file){
         File uploadDir = new File(UPLOAD_DIR);
         if (!uploadDir.exists()) {
@@ -57,7 +57,7 @@ public class ImageController {
         String originalFilename = file.getOriginalFilename();
         String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);;
         if (originalFilename != null && originalFilename.length() > 0) {
-            if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("gif")
+            if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("GIF") && !extension.equals("gif")
                     && !extension.equals("svg") && !extension.equals("jpeg")) {
                 throw new AppException(ErrorCode.FILE_NOT_SUPPORT);
             }

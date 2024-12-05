@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,4 +34,22 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     boolean existsByName(String name);
     // phân trang cho tất cả sản phẩm
     Page<Product> findAll(Pageable pageable);
+    // phân trang cho các sản phẩm dc giảm giá
+    @Query("SELECT p FROM Product p WHERE p.discountCode.id = :discountcodeId")
+    Page<Product> findDiscountedProducts(@Param("discountcodeId") String discountCodeId, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.discountCode IS NOT NULL")
+    Page<Product> findDiscountedProducts(Pageable pageable);
+
+//
+//    @Query("SELECT p FROM Product p WHERE p.category.id = :categoryId")
+//    Page<Product> findByCategoryId(@Param("categoryId") String categoryId, Pageable pageable);
+
+    @Query("SELECT p FROM Product p JOIN p.category c WHERE c.id = :categoryId")
+    Page<Product> findByCategoryId(@Param("categoryId") String categoryId, Pageable pageable);
+
+    List<Product> findByCategoryId(@Param("categoryId") String categoryId);
+
+
+
 }

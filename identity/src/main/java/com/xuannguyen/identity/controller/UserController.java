@@ -2,6 +2,8 @@ package com.xuannguyen.identity.controller;
 
 import java.util.List;
 
+import com.xuannguyen.identity.dto.request.UpdateRoleUserRequest;
+import com.xuannguyen.identity.entity.User;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
@@ -63,6 +65,14 @@ public class UserController {
     ApiResponse<UserResponse> updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.updateUser(userId, request))
+                .build();
+    }
+    @PutMapping ("/update/roleuser/{id}")
+    ApiResponse<User> updateRoleUser(@PathVariable String id, @RequestBody UpdateRoleUserRequest request) {
+        User user = userService.updateRoleUser(id,request);
+        return ApiResponse.<User>builder()
+                .message("User has been updated")
+                .result(user)
                 .build();
     }
 }

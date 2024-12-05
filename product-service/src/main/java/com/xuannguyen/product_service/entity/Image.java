@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +22,7 @@ public class Image {
     private String type;
 
     private long size;
+    private LocalDate createDate = LocalDate.now();
 
     @Lob
     @Column(columnDefinition = "LONGBLOB")

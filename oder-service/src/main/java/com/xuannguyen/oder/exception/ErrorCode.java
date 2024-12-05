@@ -31,6 +31,9 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(1121, "Order not found", HttpStatus.NOT_FOUND),
     ORDER_CANNOT_BE_CANCELLED(1122, "Order cancelled", HttpStatus.BAD_REQUEST),
     INSUFFICIENT_QUANTITY(1113, "Insufficient quantity", HttpStatus.BAD_REQUEST),
+    DISCOUNTCODE_NOTEXITED(1114, "Discountcode not exited", HttpStatus.BAD_REQUEST),
+    ODER_NOTEXITED(1115, "Oder not exited", HttpStatus.BAD_REQUEST),
+    CART_EMPTY(1116, "Cart is empty", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

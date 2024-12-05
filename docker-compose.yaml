@@ -1,5 +1,4 @@
 version: "3"
-#name: BE_WEB
 services:
   kafka:
     image: 'bitnami/kafka:3.7.0'
@@ -15,3 +14,91 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+
+  identity:
+    image: mysql:8.0
+    container_name: identity-db
+    environment:
+      MYSQL_ROOT_PASSWORD: nguyenthanhxuan
+      MYSQL_DATABASE: identity_service
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    volumes:
+      - identity-data:/var/lib/mysql
+
+  profile-service:
+    image: neo4j:latest
+    container_name: profile-db
+    environment:
+      NEO4J_AUTH: neo4j/12345678
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    networks:
+      - app-network
+
+  notification-service:
+    image: mongo:latest
+    container_name: notification-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+    volumes:
+      - notification-data:/data/db
+
+  product-service:
+    image: mysql:8.0
+    container_name: product-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: nguyenthanhxuan
+      MYSQL_DATABASE: product
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+    volumes:
+      - product-data:/var/lib/mysql
+
+  order-service:
+    image: mysql:8.0
+    container_name: order-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: nguyenthanhxuan
+      MYSQL_DATABASE: orders
+    ports:
+      - "3308:3306"
+    networks:
+      - app-network
+    volumes:
+      - order-data:/var/lib/mysql
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8888:8888"
+    depends_on:
+      - identity
+      - profile-service
+      - notification-service
+      - product-service
+      - order-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  identity-data:
+  notification-data:
+  product-data:
+  order-data:
+

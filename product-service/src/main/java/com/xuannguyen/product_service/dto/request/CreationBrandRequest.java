@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,4 +18,5 @@ public class CreationBrandRequest {
     @NotEmpty(message = "Tên Thương Hiệu rỗng")
     @Size(min=1,max=50,message="Độ dài tên thương hiệu từ 5-50 ký tự")
     private String name;
+    private Set<String> imageIds;
 }

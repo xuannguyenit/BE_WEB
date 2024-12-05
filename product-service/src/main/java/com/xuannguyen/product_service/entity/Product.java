@@ -22,19 +22,20 @@ public class Product {
     @Id
     @GeneratedValue (strategy = GenerationType.UUID)
     private String id;
-    @Column (name = "name", unique = true, nullable = false)
+    @Column (name = "name")
     private String name;
-
 
     @Column (name = "description", columnDefinition = "TEXT")
     private String description;
+    @Column (name = "short_description", columnDefinition = "TEXT")
+    private String shortDescription;
 
     private long price;
 
     private int quantity;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
 
     @ManyToOne
@@ -46,5 +47,9 @@ public class Product {
     private Set<Image> images = new HashSet<>();
 
     private LocalDate createDate = LocalDate.now();
+
+    @ManyToOne
+    @JoinColumn(name = "discountcode_id", nullable = true) // Mã giảm giá có thể null
+    private DiscountCode discountCode;
 
 }

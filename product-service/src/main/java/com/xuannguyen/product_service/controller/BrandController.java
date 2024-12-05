@@ -3,20 +3,23 @@ package com.xuannguyen.product_service.controller;
 import com.xuannguyen.product_service.dto.request.CreationBrandRequest;
 
 import com.xuannguyen.product_service.dto.response.ApiResponse;
+import com.xuannguyen.product_service.dto.response.PageResponse;
 import com.xuannguyen.product_service.entity.Brand;
 
+import com.xuannguyen.product_service.entity.Category;
 import com.xuannguyen.product_service.service.BrandService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
 @RequestMapping("/brands")
-@CrossOrigin(origins = "*",maxAge = 3600)
+//@CrossOrigin(origins = "*",maxAge = 3600)
 public class BrandController {
     @Autowired
     private BrandService brandService;
@@ -37,6 +40,15 @@ public class BrandController {
         ApiResponse<List<Brand>> apiResponse = new ApiResponse<>();
         apiResponse.setResult(brands);
         return apiResponse;
+    }
+    @GetMapping("/{id}")
+    public ApiResponse<Brand> getBrandById(@PathVariable String id){
+        Brand brand = brandService.getBrandById(id);
+        return ApiResponse.<Brand>builder()
+                .code(200)
+                .message("success")
+                .result(brand)
+                .build();
     }
 
 
@@ -72,13 +84,39 @@ public class BrandController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @Operation(summary="Xóa danh mục bằng id")
+
     public ApiResponse delete(@PathVariable String id){
         brandService.deleteBrand(id);
         return ApiResponse.builder()
                 .message("xóa thành công")
                 .build();
     }
+
+
+    @GetMapping ("/listbrand/get")
+    public ApiResponse<PageResponse<Brand>> getAllCategory(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "9") int size
+    ) {
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Page and size must be greater than 0.");
+        }
+        PageResponse<Brand> pageResponse = brandService.getAllBrandPagination(page - 1, size);
+
+        return ApiResponse.<PageResponse<Brand>>builder()
+                .result(pageResponse)
+                .build();
+    }
+
+    @PatchMapping("/shortdelete/{id}")
+    public ApiResponse<Brand> shortDelete(@PathVariable String id){
+
+        return ApiResponse.<Brand>builder()
+                .result(brandService.shortDeleteBrand(id))// phương thức xóa mềm
+                .message("xóa mềm thành công")
+                .build();
+    }
+
 
 
 }

@@ -1,0 +1,34 @@
+package com.xuannguyen.oder.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Table (name = "tbl_orderdetail")
+public class OrderDetail {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    @JsonBackReference
+    private Order order;
+    @NotNull
+    private String productId;
+    private String productName;
+    @NotNull
+    private long productPrice;
+    @NotNull
+
+    private int productQuantity;
+    private long productSalePrice;
+    private long totalPrice;
+
+}

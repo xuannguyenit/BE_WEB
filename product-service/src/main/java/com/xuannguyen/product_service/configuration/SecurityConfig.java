@@ -2,7 +2,7 @@ package com.xuannguyen.product_service.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,13 +18,20 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
-        "/brand","/brand/enabled","/category","/category/enabled","/image","/image/{id}",
+            "/prod/","/brands/","/prod/productsale/get","/prod/getallproduct",
+            "/brands","/brands/enabled","/brands/shortdelete/{id}",
+            "/category","/image/","/image/{id}","/category/shortdelete/{id}",
             "/prod/","/prod/newest/{number}", "/prod/price","/prod/related/{id}","/prod/","/category/{id}",
-            "/prod/range","/prod/{id}","/prod/search","prod/getallproduct"
+            "/category/listcate/get","/category/",
+            "/prod/range","/prod/{id}","/prod/search","prod/getallproduct","/prod/category/{categoryId}",
+            "/brands/listbrand/get","/discount/get","/discount/get/{id}","/prod/get/product/category/{id}"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
 
+//    public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
+//        this.customJwtDecoder = customJwtDecoder;
+//    }
     public SecurityConfig(CustomJwtDecoder customJwtDecoder) {
         this.customJwtDecoder = customJwtDecoder;
     }

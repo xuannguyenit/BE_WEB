@@ -2,27 +2,21 @@ package com.xuannguyen.product_service.controller;
 
 import com.xuannguyen.product_service.dto.request.CreationCategoryRequset;
 import com.xuannguyen.product_service.dto.response.ApiResponse;
+import com.xuannguyen.product_service.dto.response.PageResponse;
 import com.xuannguyen.product_service.entity.Category;
+import com.xuannguyen.product_service.entity.Product;
 import com.xuannguyen.product_service.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/category")
-@CrossOrigin(origins = "*",maxAge = 3600)
+//@CrossOrigin(origins = "*",maxAge = 3600)
 public class CategoryController {
 
     @Autowired
@@ -78,6 +72,15 @@ public class CategoryController {
                 .build();
 
     }
+    @GetMapping ("/{id}")
+    public ApiResponse<Category> getCategoryById (@PathVariable String id){
+        Category category = categoryService.getCategoryById(id);
+        return ApiResponse.<Category>builder()
+                .code(200)
+                .message("success")
+                .result(category)
+                .build();
+    }
 
     @DeleteMapping("/delete/{id}")
     @Operation(summary="Xóa danh mục bằng id")
@@ -87,6 +90,29 @@ public class CategoryController {
                 .message("xóa thành công")
                 .build();
     }
+    @GetMapping ("/listcate/get")
+    public ApiResponse<PageResponse<Category>> getAllCategory(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "9") int size
+    ) {
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Page and size must be greater than 0.");
+        }
+        PageResponse<Category> pageResponse = categoryService.getAllCategoryPagination(page - 1, size);
+
+        return ApiResponse.<PageResponse<Category>>builder()
+                .result(pageResponse)
+                .build();
+    }
+
+    @PatchMapping ("/shortdelete/{id}")
+    public ApiResponse<Category> shortDelete(@PathVariable String id){
+        return ApiResponse.<Category>builder()
+                .result(categoryService.shortDeleteCategory(id))
+                .message("xóa thành công (xóa mềm)")
+                .build();
+    }
+
 
 
 }

@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 @Data
@@ -13,13 +12,15 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 
-public class ProductClientResponse {
+public class Product {
+    private String id;
     private String name;
     private String description;
     private long price;
+    private DiscountCode discountCode;
     private int quantity;
-    private String categoryId;
-    private String brandId;
+    private Category category;
+    private Brand brand;
     private Set<String> imageIds;
     private LocalDate createDate;
 }

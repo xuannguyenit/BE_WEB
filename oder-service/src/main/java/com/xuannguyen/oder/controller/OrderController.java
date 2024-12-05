@@ -1,79 +1,87 @@
 package com.xuannguyen.oder.controller;
 
-import com.xuannguyen.oder.dto.request.CreateOrderRequest;
+import com.xuannguyen.oder.dto.request.OrderUserRequest;
+import com.xuannguyen.oder.dto.request.OrderUpdateRequest;
 import com.xuannguyen.oder.dto.respone.ApiResponse;
+import com.xuannguyen.oder.dto.respone.RevenueDto;
 import com.xuannguyen.oder.entity.Order;
-import com.xuannguyen.oder.entity.OrderStatus;
+import com.xuannguyen.oder.entity.OrderDetail;
 import com.xuannguyen.oder.service.OrderService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
-@RequiredArgsConstructor
 public class OrderController {
-
-    private final OrderService orderService;
-
-    // Tạo đơn hàng mới từ giỏ hàng
-    @PostMapping("")
-    public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody CreateOrderRequest request) {
-        Order order = orderService.createOrderFromCart(request);
-        return ResponseEntity.ok(ApiResponse.<Order>builder()
-                .result(order)
-                .build());
+    @Autowired
+    private OrderService orderService;
+    @PostMapping ("/create")
+    public ApiResponse<Order> createOrder(@RequestBody OrderUserRequest request){
+        return ApiResponse.<Order>builder()
+                .message("create order success")
+                .result(orderService.createOrderFromCart(request))
+                .build();
     }
-
-    // Xử lý thanh toán thành công
-    @PostMapping("/{orderId}/payment-success")
-    public ResponseEntity<ApiResponse<Void>> handlePaymentSuccess(@PathVariable String orderId) {
-        orderService.handlePaymentSuccess(orderId);
-        return ResponseEntity.ok(ApiResponse.<Void>builder().build());
+    // update lại trạng thái của order sau khi thanh toán hoàn thành
+    @PutMapping("/update/status/{id}")
+    public ApiResponse<Order> updateOrderStatus(@PathVariable String id){
+        return ApiResponse.<Order>builder()
+                .message("update order status success")
+                .result(orderService.updateOrder(id))
+                .build();
     }
-
-    // Cập nhật trạng thái khi thanh toán hoàn tất
-    @PostMapping("/{orderId}/complete")
-    public ResponseEntity<ApiResponse<Void>> completeOrder(@PathVariable String orderId) {
-        orderService.completeOrder(orderId);
-        return ResponseEntity.ok(ApiResponse.<Void>builder().build());
+    @PutMapping("/update/{id}")
+    public ApiResponse<Order> updateOrder(@PathVariable String id, @RequestBody OrderUpdateRequest request){
+        return ApiResponse.<Order>builder()
+                .message("update order success")
+                .result(null)
+                .build();
     }
-
-    // Lấy đơn hàng theo ID
-    @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable String orderId) {
-        Order order = orderService.getOrderById(orderId);
-        return ResponseEntity.ok(ApiResponse.<Order>builder()
-                .result(order)
-                .build());
+    @GetMapping("/get/{userid}")
+    public ApiResponse<List<Order>> getOrderByUser(@PathVariable String userid){
+        return ApiResponse.<List<Order>>builder()
+                .message("update order success")
+                .result(orderService.getOrderUserByUserId(userid))
+                .build();
     }
-
-    // Lấy tất cả đơn hàng của người dùng
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<Order>>> getAllOrdersByUserId(@PathVariable String userId) {
-        List<Order> orders = orderService.getAllOrdersByUserId(userId);
-        return ResponseEntity.ok(ApiResponse.<List<Order>>builder()
-                .result(orders)
-                .build());
+    @GetMapping ("/{id}") // get ra order theo id
+    public ApiResponse<Order> getOrderById(@PathVariable String id){
+        return ApiResponse.<Order>builder()
+                .message("select order by id success")
+                .result(orderService.getOrderById(id))
+                .build();
     }
-
-    // Hủy đơn hàng
-    @DeleteMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<Void>> cancelOrder(@PathVariable String orderId) {
-        orderService.cancelOrder(orderId);
-        return ResponseEntity.ok(ApiResponse.<Void>builder().build());
+    // thống kê danh sách các mặt hàng mà user đã thực hiện mua(dành cho trang client)
+    @GetMapping ("/listorderdetail/user/get")
+    public ApiResponse<List<OrderDetail>> getOrderDetailByUser(){
+        return ApiResponse.<List<OrderDetail>>builder()
+                .message("select order detail by id success")
+                .result(orderService.getProductOfUser())
+                .build();
     }
-
-    // Cập nhật trạng thái của đơn hàng
-    @PutMapping("/{orderId}/status")
-    public ResponseEntity<ApiResponse<Order>> updateOrderStatus(
-            @PathVariable String orderId,
-            @RequestParam OrderStatus newStatus) {
-        Order updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
-        return ResponseEntity.ok(ApiResponse.<Order>builder()
-                .result(updatedOrder)
-                .build());
+    // thống kê các đơn hàng của user hiện tại đăng nhập gồm cả các đơn hàng đã thanh toán và chưa thanh toán
+    @GetMapping ("/allorder/user/get")
+    public ApiResponse<List<Order>> getAllOrderByUser(){
+        return ApiResponse.<List<Order>>builder()
+                .message("select order by id success")
+                .result(orderService.getAllOrderByUserId())
+                .build();
+    }
+    // thống kê doanh thu
+    @GetMapping ("/get/revenue")
+    public ApiResponse<RevenueDto> getRevenue(){
+        return ApiResponse.<RevenueDto>builder()
+                .message("get revenue success")
+                .result(orderService.getRevenueStatistics())
+                .build();
+    }
+    // thống kế tất cả các đơn hàng
+    @GetMapping("/all/order/get")
+    public ApiResponse<List<Order>> getAllOrder(){
+        return ApiResponse.<List<Order>>builder()
+                .result(orderService.getAllOrderDesc())
+                .build();
     }
 }

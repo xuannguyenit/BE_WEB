@@ -20,7 +20,6 @@ public class WebClientConfiguration {
                 .baseUrl("http://localhost:8080/identity")
                 .build();
     }
-
     @Bean
     CorsWebFilter corsWebFilter(){
         CorsConfiguration corsConfiguration = new CorsConfiguration();

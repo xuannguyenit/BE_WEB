@@ -41,9 +41,14 @@ public class AuthenticationFifter implements GlobalFilter , Ordered {
             "/profile/api/users",
             "/identity/users/registration",
             "/notification/email/send",
-            "/brand","/brand/enabled",
-            "/category","/category/enabled",
-            "/image"
+            "/product/prod/",
+            "/product/brands/","/product/brands/enabled","/product/brands/.*","/product/brands/shortdelete/.*",
+            "/product/category/","/product/category/enabled","/product/category/shortdelete/.*",
+            "/product/image/","/product/prod/productsale/get","/product/prod/getallproduct","/product/prod//get/product/category/.*",
+            "/product/category/listcate/get","product/category/.*"
+            ,"/product/prod/.*","/product/prod/category/.*",
+            "/product/brands/listbrand/get" , "/product/category/","/product/discount/get","/product/discount/get/.*",
+            "/order/cartitem/update"
     };
     @Value("${app.api-prefix}")
     @NonFinal

@@ -1,6 +1,7 @@
 package com.xuannguyen.product_service.service;
 
 import com.xuannguyen.product_service.dto.request.CreationBrandRequest;
+import com.xuannguyen.product_service.dto.response.PageResponse;
 import com.xuannguyen.product_service.entity.Brand;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface BrandService {
     Brand findBrandByName(String brandName);
     void enableBrand (String id);
     List<Brand> getListBrandsEnable();
+    PageResponse<Brand> getAllBrandPagination(int page, int size);
+    Brand shortDeleteBrand(String id);
+
 }

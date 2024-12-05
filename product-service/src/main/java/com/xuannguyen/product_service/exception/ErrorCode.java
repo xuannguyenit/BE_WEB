@@ -27,6 +27,9 @@ public enum ErrorCode {
     INVALID_FILE(1110, "Invalid file", HttpStatus.BAD_REQUEST),
     CATEGORY_EXITS(1111, "Category exitsted", HttpStatus.BAD_REQUEST),
     NAME_EXITSTED(1112, "Name exitsted", HttpStatus.BAD_REQUEST),
+    INVALID_DISCOUNTCODE(1113, "Invalid discount code", HttpStatus.BAD_REQUEST),
+    INVALID_DISCOUNTCODE_NOTEXIT(1114, "Invalid discount code", HttpStatus.BAD_REQUEST),
+    DISCOUNTCODE_EXITTED(1115, "Discount code exited", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

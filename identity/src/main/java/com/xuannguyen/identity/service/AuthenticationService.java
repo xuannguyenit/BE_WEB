@@ -69,6 +69,17 @@ public class AuthenticationService {
 
         return IntrospectResponse.builder().valid(isValid).build();
     }
+    private Date getExpiryTimeFromToken(String token) {
+        try {
+            // Phân tích token
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            // Lấy thời gian hết hạn từ claims
+            return signedJWT.getJWTClaimsSet().getExpirationTime();
+        } catch (ParseException e) {
+            log.error("Error parsing JWT token", e);
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+    }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
@@ -82,7 +93,15 @@ public class AuthenticationService {
 
         var token = generateToken(user);
 
-        return AuthenticationResponse.builder().token(token).build();
+        // Lấy thời gian hết hạn của token
+        long expiryTime = getExpiryTimeFromToken(token).getTime();
+
+        return AuthenticationResponse.builder()
+                .username(user.getUsername())
+                .token(token)
+                .expiryTime(expiryTime)
+                .build();
+
     }
 
     public void logout(LogoutRequest request) throws ParseException, JOSEException {
