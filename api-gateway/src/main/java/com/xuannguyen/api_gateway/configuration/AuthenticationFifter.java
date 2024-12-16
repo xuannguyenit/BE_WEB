@@ -46,7 +46,7 @@ public class AuthenticationFifter implements GlobalFilter , Ordered {
             "/product/category/","/product/category/enabled","/product/category/shortdelete/.*",
             "/product/image/","/product/prod/productsale/get","/product/prod/getallproduct","/product/prod//get/product/category/.*",
             "/product/category/listcate/get","product/category/.*"
-            ,"/product/prod/.*","/product/prod/category/.*",
+            ,"/product/prod/.*","/product/prod/category/.*", "/product/prod/brand/.*","/product/prod/search",
             "/product/brands/listbrand/get" , "/product/category/","/product/discount/get","/product/discount/get/.*",
             "/order/cartitem/update"
     };

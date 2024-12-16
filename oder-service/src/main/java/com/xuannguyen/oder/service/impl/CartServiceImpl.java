@@ -32,6 +32,16 @@ public class CartServiceImpl implements CartService {
         return cartItemRepository.findAllByUserId(userId);
     }
 
+    @Override
+    public void deleteCart(String cartId) {
+
+        if (!cartRepository.existsById(cartId)) {
+            return;
+        }
+        cartRepository.deleteById(cartId);
+
+    }
+
     /**
      * Xóa giỏ hàng và toàn bộ CartItem liên quan
      */

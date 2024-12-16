@@ -1,5 +1,6 @@
 package com.xuannguyen.oder.repository;
 
+import com.xuannguyen.oder.dto.respone.DailyRevenueResponse;
 import com.xuannguyen.oder.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +25,14 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     // danh sách tất cả đơn hàng
     @Query (value = "select  o from Order  o  ORDER BY o.orderTime DESC")
     List<Order> getAllOrderDesc();
-
+    @Query("SELECT new com.xuannguyen.oder.dto.respone.DailyRevenueResponse(DAY(o.orderTime), SUM(o.totalPrice)) " +
+            "FROM Order o " +
+            "WHERE MONTH(o.orderTime) = :month AND o.status = 'Complete' AND YEAR(o.orderTime) = :year " +
+            "GROUP BY DAY(o.orderTime) " +
+            "ORDER BY DAY(o.orderTime)")
+    List<DailyRevenueResponse> getDailyRevenueForMonth(@Param("month") int month, @Param("year") int year);
+    // thống kê tổng số đơn hàng
+    @Query("SELECT COUNT(o) FROM Order o")
+    Long getCountOrder();
 
 }

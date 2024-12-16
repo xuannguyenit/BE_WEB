@@ -8,6 +8,7 @@ import com.xuannguyen.product_service.entity.Product;
 import com.xuannguyen.product_service.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -103,8 +104,10 @@ public class ProductController {
 
     public ApiResponse<List<Product>> searchProduct(@RequestParam("keyword") String keyword){
         List<Product> list = productService.searchProduct(keyword);
-        ApiResponse<List<Product>> apiResponse = new ApiResponse<>();
-        return apiResponse;
+
+        return ApiResponse.<List<Product>>builder()
+                .result(list)
+                .build();
     }
 
     @PostMapping("/create")
@@ -161,6 +164,20 @@ public class ProductController {
             throw new IllegalArgumentException("Page and size must be greater than 0.");
         }
         PageResponse<Product> pageResponse= productService.getProductsByCategoryPagination(categoryId, page -1, size);
+        return ApiResponse.<PageResponse<Product>>builder()
+                .result(pageResponse)
+                .build();
+    }
+
+    @GetMapping("/brand/{brandId}")
+    public ApiResponse<PageResponse<Product>> getProductByBrand(
+            @PathVariable String brandId,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size ) {
+        if (page < 1 || size < 1) {
+            throw new IllegalArgumentException("Page and size must be greater than 0.");
+        }
+        PageResponse<Product> pageResponse= productService.getAllProductByBrandIdPagination(brandId, page -1, size);
         return ApiResponse.<PageResponse<Product>>builder()
                 .result(pageResponse)
                 .build();
@@ -230,6 +247,14 @@ public class ProductController {
     public ApiResponse<List<Product>> getProductByCategory(@PathVariable String id){
         return ApiResponse.<List<Product>>builder()
                 .result(productService.getProductByCategory(id))
+                .build();
+    }
+
+    @GetMapping("/get/count/product")
+    public ApiResponse<Long> countProduct(){
+        return ApiResponse.<Long>builder()
+                .message("success")
+                .result(productService.getCountProduct())
                 .build();
     }
 }

@@ -1,6 +1,7 @@
 package com.xuannguyen.oder.service;
 
 import com.xuannguyen.oder.dto.request.OrderUserRequest;
+import com.xuannguyen.oder.dto.respone.DailyRevenueResponse;
 import com.xuannguyen.oder.dto.respone.RevenueDto;
 import com.xuannguyen.oder.entity.Order;
 import com.xuannguyen.oder.entity.OrderDetail;
@@ -31,5 +32,7 @@ public interface OrderService {
     // thống kê doanh thu theo
     long getRevenueStatisticsByTime(LocalDate dateStart, LocalDate dateEnd);
     List<Order> getAllOrderDesc ();
+    List<DailyRevenueResponse> getDailyRevenueForMonth (int month , int year);
+    Long getCountOrder();
 
 }

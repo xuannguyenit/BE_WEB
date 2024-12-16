@@ -24,7 +24,7 @@ public class SecurityConfig {
             "/prod/","/prod/newest/{number}", "/prod/price","/prod/related/{id}","/prod/","/category/{id}",
             "/category/listcate/get","/category/",
             "/prod/range","/prod/{id}","/prod/search","prod/getallproduct","/prod/category/{categoryId}",
-            "/brands/listbrand/get","/discount/get","/discount/get/{id}","/prod/get/product/category/{id}"
+            "/brands/listbrand/get","/discount/get","/discount/get/{id}","/prod/get/product/category/{id}", "/prod/brand/{brandId}"
     };
 
     private final CustomJwtDecoder customJwtDecoder;
