@@ -116,6 +116,11 @@ public class BrandController {
                 .message("xóa mềm thành công")
                 .build();
     }
+//    @GetMapping ("/get/all/brand")
+//    PageResponse<Brand> getAllBrand( @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+//                                     @RequestParam(value = "size", required = false, defaultValue = "9") int size){
+//
+//    }
 
 
 

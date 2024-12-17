@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -182,6 +183,24 @@ public class ProductServiceImpl implements ProductService {
         return products;
     }
 
+    @Override
+    public PageResponse<Product> getAllProductByBrandIdPagination(String brandId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate").descending());
+        Page<Product> pageResponse = productRepository.findByBrandId(brandId, pageable);
+        return PageResponse.<Product>builder()
+                .currentPage(page)
+                .pageSize(pageResponse.getSize())
+                .totalPages(pageResponse.getTotalPages())
+                .totalElements(pageResponse.getTotalElements())
+                .data(pageResponse.getContent())
+                .build();
+    }
+
+    @Override
+    public Long getCountProduct() {
+        return productRepository.countTotalProducts();
+    }
+
     // phân trang cho sản phẩm có mã giảm giá theo id mã giảm giá
     @Override
     public PageResponse<Product> getDiscountedProductsPagination(String discountCodeId,int page, int size) {
@@ -272,5 +291,6 @@ public class ProductServiceImpl implements ProductService {
         List<Product> list = productRepository.searchProduct(keyword);
         return list;
     }
+
 
 }

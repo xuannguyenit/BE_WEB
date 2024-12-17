@@ -4,10 +4,7 @@ import com.xuannguyen.oder.dto.respone.ApiResponse;
 import com.xuannguyen.oder.entity.CartItem;
 import com.xuannguyen.oder.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,6 +19,14 @@ public class CartController {
         return ApiResponse.<List<CartItem>>builder()
                 .message("success")
                 .result(cartService.getCartByUserId(userId))
+                .build();
+    }
+    @DeleteMapping("/delete")
+    public ApiResponse deleteCartById(@RequestParam String cartId) {
+        cartService.deleteCart(cartId);
+        return ApiResponse.<Void>builder()
+                .message("success")
+                
                 .build();
     }
 }

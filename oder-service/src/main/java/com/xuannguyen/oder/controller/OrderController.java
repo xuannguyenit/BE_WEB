@@ -3,6 +3,7 @@ package com.xuannguyen.oder.controller;
 import com.xuannguyen.oder.dto.request.OrderUserRequest;
 import com.xuannguyen.oder.dto.request.OrderUpdateRequest;
 import com.xuannguyen.oder.dto.respone.ApiResponse;
+import com.xuannguyen.oder.dto.respone.DailyRevenueResponse;
 import com.xuannguyen.oder.dto.respone.RevenueDto;
 import com.xuannguyen.oder.entity.Order;
 import com.xuannguyen.oder.entity.OrderDetail;
@@ -82,6 +83,26 @@ public class OrderController {
     public ApiResponse<List<Order>> getAllOrder(){
         return ApiResponse.<List<Order>>builder()
                 .result(orderService.getAllOrderDesc())
+                .build();
+    }
+    //Thống doanh thu từng ngày trong tháng
+    @GetMapping("/get/revenue/day")
+    public ApiResponse<List<DailyRevenueResponse>> getRevenueByDay(
+            @RequestParam int month,
+            @RequestParam int year
+    ){
+        return ApiResponse.<List<DailyRevenueResponse>>builder()
+                .message("get revenueByDay success")
+                .result(orderService.getDailyRevenueForMonth(month,year))
+                .build();
+    }
+
+    // Thống kê tổng đơn hàng
+    @GetMapping ("/get/count/order")
+    public ApiResponse<Long> getCountOrder(){
+        return ApiResponse.<Long>builder()
+                .message("get count order success")
+                .result(orderService.getCountOrder())
                 .build();
     }
 }

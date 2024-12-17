@@ -62,9 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category updateCategory(String id, CreationCategoryRequset request) {
-        if (categoryRepository.existsByName(request.getName())) {
-            throw new AppException(ErrorCode.CATEGORY_EXITS);
-        }
+
         Category category = categoryRepository.findById(id).get();
         category.setName(request.getName());
 

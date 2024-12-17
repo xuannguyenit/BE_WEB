@@ -57,7 +57,7 @@ public class ImageController {
         String originalFilename = file.getOriginalFilename();
         String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);;
         if (originalFilename != null && originalFilename.length() > 0) {
-            if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("GIF") && !extension.equals("gif")
+            if (!extension.equals("png") && !extension.equals("jpg") && !extension.equals("GIF") && !extension.equals("gif")&& !extension.equals("webp")
                     && !extension.equals("svg") && !extension.equals("jpeg")) {
                 throw new AppException(ErrorCode.FILE_NOT_SUPPORT);
             }

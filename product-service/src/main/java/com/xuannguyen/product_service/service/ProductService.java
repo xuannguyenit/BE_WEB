@@ -5,6 +5,7 @@ import com.xuannguyen.product_service.dto.request.ProductQuantityRequest;
 import com.xuannguyen.product_service.dto.response.PageResponse;
 import com.xuannguyen.product_service.dto.response.ProductResponse;
 import com.xuannguyen.product_service.entity.Product;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -49,5 +50,7 @@ public interface ProductService {
     // cập nhật lại số lượng sản phẩm sau khi nhập thêm
     Product updateProductAfterImport (ProductQuantityRequest request);
     List<Product> getProductByCategory(String categoryId);
+    PageResponse<Product> getAllProductByBrandIdPagination(String brandId, int page, int size);
+    Long getCountProduct();
 
 }

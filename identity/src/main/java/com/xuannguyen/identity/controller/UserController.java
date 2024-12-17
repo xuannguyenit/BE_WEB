@@ -6,6 +6,7 @@ import com.xuannguyen.identity.dto.request.UpdateRoleUserRequest;
 import com.xuannguyen.identity.entity.User;
 import jakarta.validation.Valid;
 
+import org.apache.kafka.shaded.com.google.protobuf.Api;
 import org.springframework.web.bind.annotation.*;
 
 import com.xuannguyen.identity.dto.request.ApiResponse;
@@ -31,6 +32,13 @@ public class UserController {
     ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createUser(request))
+                .build();
+    }
+
+    @PostMapping("/create/admin")
+    ApiResponse<UserResponse> createAdmin(@RequestBody @Valid UserCreationRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.createAdminUser(request))
                 .build();
     }
 
@@ -73,6 +81,12 @@ public class UserController {
         return ApiResponse.<User>builder()
                 .message("User has been updated")
                 .result(user)
+                .build();
+    }
+    @GetMapping ("/get/count")
+    ApiResponse<Integer> getUserCount() {
+        return ApiResponse.<Integer>builder()
+                .result(userService.getCountUsers())
                 .build();
     }
 }

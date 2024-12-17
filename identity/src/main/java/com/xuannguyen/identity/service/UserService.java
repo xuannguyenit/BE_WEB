@@ -100,45 +100,55 @@ public class UserService {
 
         return userCreationReponse;
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponse createAdminUser(UserCreationRequest request) {
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-//public UserResponse createUser(UserCreationRequest request) {
-//    User user = userMapper.toUser(request);
-//    user.setPassword(passwordEncoder.encode(request.getPassword()));
-//
-//    HashSet<Role> roles = new HashSet<>();
-//    roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
-//
-//    user.setRoles(roles);
-//
-//    try {
-//        user = userRepository.save(user);
-//    } catch (DataIntegrityViolationException exception){
-//        throw new AppException(ErrorCode.USER_EXISTED);
-//    }
-//
-////        ServletRequestAttributes servletRequestAttributes =
-////                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-////        var authHeader= servletRequestAttributes.getRequest().getHeaders("Authorization");
-//
-//    // tạo profile
-//    ProfileCreationRequest profileCreationRequest = ProfileCreationRequest.builder()
-//            .userId(user.getId())
-//            .firstName(request.getFirstName())
-//            .lastName(request.getLastName())
-//            .city(request.getCity())
-//            .dob(request.getDob())
-//            .build();
-//    ApiResponse<ProfileResponse> profileResponse = profileClient.createProfile(profileCreationRequest);
-////    NotificationEvent notificationEvent = NotificationEvent.builder()
-////            .channel("EMAIL")
-////            .recipient(request.getEmail())
-////            .subject("Welcome to My Shop")
-////            .body("Hello, " + request.getUsername())
-////            .build();
-////    kafkaTemplate.send("notification-delivery",notificationEvent);
-//
-//    return userMapper.toUserResponse(user);
-//}
+        // Lấy role và thêm permission nếu tồn tại
+        HashSet<Role> roles = new HashSet<>();
+        roleRepository.findById(PredefinedRole.ADMIN_ROLE).ifPresent(userRole -> {
+            HashSet<Permission> permissions = new HashSet<>();
+            permissionRepository.findById(PredefinePermisstion.ADMIN_PERMISSTION).ifPresent(permissions::add);
+
+            // Debug kiểm tra xem permission đã thêm chưa
+            System.out.println("Permissions found: " + permissions.size());
+
+            userRole.setPermissions(permissions);
+            roles.add(userRole);
+        });
+
+        user.setRoles(roles);
+
+        user.setEmailVerified(false);
+
+        try {
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException exception){
+            throw new AppException(ErrorCode.USER_EXISTED);
+        }
+
+        var profileRequest = profileMapper.toProfileCreationRequest(request);
+        profileRequest.setUserId(user.getId());
+
+        var profile = profileClient.createProfile(profileRequest);
+
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .channel("EMAIL")
+                .recipient(request.getEmail())
+                .subject("Welcome to xuannguyen")
+                .body("Username :" + request.getUsername() + "password: " + request.getPassword())
+                .build();
+
+        // Publish message to kafka
+        kafkaTemplate.send("notification-delivery", notificationEvent);
+
+        var userCreationReponse = userMapper.toUserResponse(user);
+
+        userCreationReponse.setId(profile.getResult().getId());
+
+        return userCreationReponse;
+    }
 
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
@@ -233,4 +243,9 @@ public class UserService {
 
         return userCreationReponse;
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    public Integer getCountUsers() {
+        return userRepository.getCountUser();
+    }
+
 }

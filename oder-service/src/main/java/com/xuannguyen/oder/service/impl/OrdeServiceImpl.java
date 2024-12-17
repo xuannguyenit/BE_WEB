@@ -3,6 +3,7 @@ package com.xuannguyen.oder.service.impl;
 import com.xuannguyen.oder.dto.request.OrderUserRequest;
 import com.xuannguyen.oder.dto.request.ProductUpdateQuantityRequest;
 import com.xuannguyen.oder.dto.respone.ApiResponse;
+import com.xuannguyen.oder.dto.respone.DailyRevenueResponse;
 import com.xuannguyen.oder.dto.respone.Product;
 import com.xuannguyen.oder.dto.respone.RevenueDto;
 import com.xuannguyen.oder.entity.Cart;
@@ -131,7 +132,9 @@ public class OrdeServiceImpl implements OrderService {
                 .orderTime(LocalDateTime.now())
                 .status("Pending") // Trạng thái mặc định ban đầu
                 .totalPrice(cart.getTotalPrice())
-
+                .shippingMethod("VNPAY")
+                .paymentMethod("VNPAY")
+                .shippingDate(LocalDateTime.now().plusDays(10))
                 .build();
 
         // Lưu Order vào DB
@@ -203,8 +206,12 @@ public Order updateOrder(String id) {
     Order saveOrder =orderRepository.save(order);
     // Xóa giỏ hàng hoặc cập nhật trạng thái giỏ hàng
     // Lấy giỏ hàng của user
-//    String userId = saveOrder.getUserId();
-//
+    String userId = saveOrder.getUserId();
+    if(cartRepository.existsByUserId(userId)){
+        Cart cart = cartRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.CART_NOT_EXITS));
+        cartRepository.delete(cart);
+    }
+
 //    Cart cart = cartRepository.findByUserId(userId)
 //            .orElseGet(() -> {return null;});
 //    if (cart!=null){
@@ -247,6 +254,17 @@ public Order updateOrder(String id) {
     public List<Order> getAllOrderDesc() {
         List<Order> list = orderRepository.getAllOrderDesc();
         return list;
+    }
+    // thống kê doanh thu theo ngày tháng
+    @Override
+
+    public List<DailyRevenueResponse> getDailyRevenueForMonth (int month , int year){
+        return orderRepository.getDailyRevenueForMonth(month, year);
+    }
+
+    @Override
+    public Long getCountOrder() {
+        return orderRepository.getCountOrder();
     }
 
 }
